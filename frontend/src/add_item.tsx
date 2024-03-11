@@ -1,61 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import './basic.css';
 
 
-// estado: quase top, mas parâmetro CNPJ fica como undefined na URL de requisição. prov tem que usar usestate pra pegar
+
+function generateRandomNumber() {
+  // Generate a random decimal number between 0 and 1
+  const randomDecimal = Math.random();
+
+  // Multiply the random decimal by 10^8 (100,000,000) to get an 8-digit number
+  const randomNumber = Math.floor(randomDecimal * 100000000);
+
+  return randomNumber;
+}
 
 function AddItem() {
-  const [id, setId] = useState('');
   const [nome, setNome] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [img, setImg] = useState('');
   const [error, setError] = useState('');
-  
-  
+  const [successMessage, setSuccessMessage] = useState('');
   const { CNPJ } = useParams();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      const codigo = generateRandomNumber();
 
-    // ---------------------------------------------------------------- TODO: adicionar parâmetro img opcional
-    
-      const response = await fetch(`http://127.0.0.1:8000/backend/api/inventory/${CNPJ}/adicionar_item?id=${id}&nome=${nome}&description=${description}&price=${price}&quantidade=${quantidade}`, {
+      const response = await fetch(`http://127.0.0.1:8000/backend/api/inventory/${CNPJ}/adicionar_item?id=${codigo}&nome=${nome}&description=${description}&price=${price}&quantidade=${quantidade}`, {
         method: 'POST',
       });
-      if (!response.ok) {
-        throw new Error('Falha ao adicionar o item');
+
+      const data = await response.json(); // Parse response JSON data
+
+      // If response is not OK, throw an error
+      if (!response.ok) {        
+        throw new Error(response.statusText); // Use the message returned from the server
       }
+
       // Clear form fields on successful submission
-      setId('');
       setNome('');
       setDescription('');
       setPrice('');
       setQuantidade('');
       setImg('');
       setError('');
+      setSuccessMessage('Item adicionado com sucesso'); // Set success message
     } catch (error) {
+      // Handle errors
       console.error(error);
-      setError('Falha ao adicionar o item');
+      console.log(error);
+      setError(error.message); // Set error message
     }
   };
 
   return (
     <div>
       <h2>Adicionar Novo Item</h2>
-      {error && <p>{error}</p>}
+      {error && <p className = "error">{error}</p>}
+      {successMessage && <p className="success">{successMessage}</p>}
       <form onSubmit={handleSubmit}>
         <label>
-          ID:
-          <input type="text" value={id} onChange={(e) => setId(e.target.value)} required />
+          Nome:
+          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required />
         </label>
-        <br />
-        <label>
-	  Nome:
-	  <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required />
-	</label>
         <br />
         <label>
           Descrição:
@@ -79,6 +90,7 @@ function AddItem() {
         <br />
         <button type="submit">Adicionar Item</button>
       </form>
+    	<Link to={`/inventory`}><button>Voltar</button></Link>
     </div>
   );
 }

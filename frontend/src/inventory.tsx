@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
-// versão: atualização de quantidade ok, display inventário ok
+import { Link } from 'react-router-dom';
+import './basic.css';
 
 function Inventory() {
   const [cnpj, setCnpj] = useState('');
@@ -42,6 +42,7 @@ const handleUpdateButtonClick = async (itemId, qnt) => {
     if (!response.ok) {
       throw new Error('Falha na atualização do inventário');
     }
+    
     // Refresh the inventory after updating
     handleButtonClick();
   } catch (error) {
@@ -96,8 +97,9 @@ const handleUpdateButtonClick = async (itemId, qnt) => {
               </li>
             ))}
           </ul>
-          <p>Total: {responseData.data.Total}</p>
-          <p>Endereço: {responseData.data.Endereço}</p>
+             <Link to={`/inventory/add_item/${cnpj}`}>
+        	<button>Add Item</button>
+             </Link>
         </div>
       )}
     </div>
@@ -105,4 +107,6 @@ const handleUpdateButtonClick = async (itemId, qnt) => {
 }
 
 export default Inventory;
+
+
 
